@@ -17,7 +17,7 @@ function CustomDataCard(props) {
           {props.name}
         </Typography>
         <Typography variant="h5" component="div">
-          SOMEWORDS
+          {props.name != "TRANSACTION #" ? "$ " + props.value : props.value}
         </Typography>
         <Typography sx={{ mb: 1.5 }} />
         <Typography variant="body2">{props.details}</Typography>

@@ -1,10 +1,11 @@
 import "./styles/App.css";
-import CustomDataCard from "./components/CustomDataCard";
+import CustomCardGroup from "./components/CustomCardGroup";
 import DataTable from "./components/DataTable";
 import PieChart from "./components/PieChart";
 import LineChart from "./components/LineChart";
 import { Grid, Card, TextField, Button } from "@mui/material";
 import React, { Component } from "react";
+import Typography from "@mui/material/Typography";
 
 const footerHeaderHeight = 60;
 const OUTER_CONTAINER_PADDING = 10;
@@ -14,17 +15,54 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      address: "0x1db3439a222c519ab44bb1144fc28167b4fa6ee6",
+      address: "",
+      maxFee: 0,
+      avgFee: 0,
+      feeSum: 0,
+      topTen: [],
+      transNum: 0,
+      defiMap: {},
     };
   }
+
+  handleInputChange = (event) => {
+    const { value, name } = event.target;
+
+    this.setState(
+      {
+        [name]: value,
+      },
+      () => console.log(this.state.maxFee)
+    );
+  };
 
   submitAddress = async () => {
     try {
       const response = await fetch("http://localhost:8080/api", {
-        method: "GET",
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ address: this.state.address }),
       });
       const data = await response.json();
-      console.log(data.greeting);
+      if (response.status === 200) {
+        console.log(data);
+        for (const prop in data) {
+          this.setState({
+            [prop]: data[prop],
+          });
+        }
+      } else {
+        console.error(
+          "Status:" +
+            response.status +
+            " " +
+            response.statusText +
+            " : " +
+            data.message
+        );
+      }
     } catch (e) {
       console.log(e);
     }
@@ -52,7 +90,9 @@ class App extends Component {
             lg={12}
             style={{ height: footerHeaderHeight }}
           >
-            THIS IS HEADER
+            <Typography variant="h4" sx={{ fontFamily: "monospace" }}>
+              Ethereum address stats
+            </Typography>
           </Grid>
           <Grid
             item
@@ -71,6 +111,9 @@ class App extends Component {
               label="Input your MetaMask address..."
               variant="outlined"
               sx={{ width: "40%" }}
+              name="address"
+              value={this.state.address}
+              onChange={this.handleInputChange}
             />
           </Grid>
           <Grid item xs={12} md={12} sm={12} lg={12}>
@@ -83,48 +126,17 @@ class App extends Component {
             </Button>
           </Grid>
 
-          <Grid
-            container
-            xs={12}
-            md={12}
-            sm={12}
-            lg={12}
-            sx={{ pb: INNER_GRID_PADDING }}
-          >
-            <Grid item xs={3} md={3} sm={3} lg={3}>
-              <CustomDataCard
-                margins={{ mt: 0, mr: 1, mb: 0, ml: 0 }}
-                name="AVERAGE"
-                details="Average cost of a transaction"
-              />
-            </Grid>
-            <Grid item xs={3} md={3} sm={3} lg={3}>
-              <CustomDataCard
-                margins={{ mt: 0, mr: 1, mb: 0, ml: 1 }}
-                name="MEDIAN"
-                details="Median cost of a transaction"
-              />
-            </Grid>
-            <Grid item xs={3} md={3} sm={3} lg={3}>
-              <CustomDataCard
-                margins={{ mt: 0, mr: 1, mb: 0, ml: 1 }}
-                name="MAX"
-                details="Maximum paid for a transaction"
-              />
-            </Grid>
-            <Grid item xs={3} md={3} sm={3} lg={3}>
-              <CustomDataCard
-                margins={{ mt: 0, mr: 0, mb: 0, ml: 1 }}
-                name="TOTAL"
-                details="The sum of all transactions paid"
-              />
-            </Grid>
-          </Grid>
+          <CustomCardGroup
+            maxFee={this.state.maxFee}
+            avgFee={this.state.avgFee}
+            feeSum={this.state.feeSum}
+            transNum={this.state.transNum}
+          />
 
           <Grid container={2} sx={{ pb: INNER_GRID_PADDING }}>
             <Grid item xs={6} md={6} sm={6} lg={6} sx={{ pr: 3 }}>
               <Card variant="outlined">
-                <PieChart />
+                <PieChart defiMap={this.state.defiMap} />
               </Card>
             </Grid>
             <Grid item xs={6} md={6} sm={6} lg={6} sx={{ pl: 3 }}>
@@ -137,7 +149,7 @@ class App extends Component {
             </Grid>
           </Grid>
           <Grid item xs={12} md={12} sm={12} lg={12}>
-            <DataTable />
+            <DataTable topTen={this.state.topTen} />
           </Grid>
           <Grid
             item
