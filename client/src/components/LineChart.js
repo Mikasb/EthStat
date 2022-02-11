@@ -21,40 +21,38 @@ ChartJS.register(
   Legend
 );
 
-export const options = {
-  responsive: true,
-  plugins: {
-    legend: {
-      position: "top",
+function LineChart(props) {
+  const { transDates } = props;
+  const options = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: "top",
+      },
+      title: {
+        display: true,
+        text: "Transactions by date",
+      },
     },
-    title: {
-      display: true,
-      text: "Chart.js Line Chart",
-    },
-  },
-};
+  };
+  let yearMonthLabel = [];
+  let numberOfTransactions = [];
+  if (transDates !== undefined) {
+    yearMonthLabel = Object.keys(transDates);
+    numberOfTransactions = Object.values(transDates);
+  }
 
-const labels = ["January", "February", "March", "April", "May", "June", "July"];
-
-export const data = {
-  labels,
-  datasets: [
-    {
-      label: "Dataset 1",
-      data: [0, 10, 5, 2, 20, 30, 45],
-      borderColor: "rgb(255, 99, 132)",
-      backgroundColor: "rgba(255, 99, 132, 0.5)",
-    },
-    {
-      label: "Dataset 2",
-      data: [2, 9, 5, 12, 55, 66, 77],
-      borderColor: "rgb(53, 162, 235)",
-      backgroundColor: "rgba(53, 162, 235, 0.5)",
-    },
-  ],
-};
-
-function LineChart() {
+  const data = {
+    labels: yearMonthLabel,
+    datasets: [
+      {
+        label: "Monthly transactions",
+        data: numberOfTransactions,
+        borderColor: "rgb(255, 99, 132)",
+        backgroundColor: "rgba(255, 99, 132, 0.5)",
+      },
+    ],
+  };
   return (
     <div>
       <Line options={options} data={data} />

@@ -11,18 +11,20 @@ const footerHeaderHeight = 60;
 const OUTER_CONTAINER_PADDING = 10;
 const INNER_GRID_PADDING = 5;
 
+const initialState = {
+  address: "",
+  maxFee: 0,
+  avgFee: 0,
+  feeSum: 0,
+  topTen: [],
+  transNum: 0,
+  defiMap: {},
+};
+
 class App extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      address: "",
-      maxFee: 0,
-      avgFee: 0,
-      feeSum: 0,
-      topTen: [],
-      transNum: 0,
-      defiMap: {},
-    };
+    this.state = initialState;
   }
 
   handleInputChange = (event) => {
@@ -46,6 +48,8 @@ class App extends Component {
         body: JSON.stringify({ address: this.state.address }),
       });
       const data = await response.json();
+      // Before setting the state - reset it
+      this.setState(initialState);
       if (response.status === 200) {
         console.log(data);
         for (const prop in data) {
@@ -108,7 +112,7 @@ class App extends Component {
           >
             <TextField
               id="outlined-basic"
-              label="Input your MetaMask address..."
+              label="Input your ethereum address..."
               variant="outlined"
               sx={{ width: "40%" }}
               name="address"
@@ -141,10 +145,7 @@ class App extends Component {
             </Grid>
             <Grid item xs={6} md={6} sm={6} lg={6} sx={{ pl: 3 }}>
               <Card variant="outlined">
-                <LineChart />
-              </Card>
-              <Card variant="outlined">
-                <LineChart />
+                <LineChart transDates={this.state.transDates} />
               </Card>
             </Grid>
           </Grid>
@@ -159,7 +160,9 @@ class App extends Component {
             lg={12}
             sx={{ height: footerHeaderHeight, pt: 5 }}
           >
-            THIS IS FOOTER
+            <a href="https://github.com/Mikasb/EthStat/" target="_blank">
+              Git source code
+            </a>
           </Grid>
         </Grid>
       </div>
